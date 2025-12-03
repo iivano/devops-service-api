@@ -1,29 +1,43 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-  build-test:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    # 1. Check out the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+    # 2. Set up Node.js
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
 
-      - name: Install dependencies
-        run: npm install
+    # 3. Install dependencies
+    - name: Install dependencies
+      run: npm install
 
-      - name: Run tests
-        run: npm test --if-present
+    # 4. Run tests
+    - name: Run tests
+      run: npm test
 
-      - name: Build Docker image
-        run: docker build -t devops-status-api .
+    # 5. Build Docker image
+    - name: Build Docker image
+      run: docker build -t devops-status-api .
+
+    # 6. Run container (optional for CI, useful for integration testing)
+    - name: Run container
+      run: |
+        docker stop devops-status-api || true
+        docker rm devops-status-api || true
+        docker run -d -p 3000:3000 --name devops-status-api devops-status-api
