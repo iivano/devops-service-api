@@ -9,40 +9,50 @@ on:
       - main
 
 jobs:
-  build-test-docker:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checkout the repository
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # 1️ Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # 2. Set up Node.js
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 20
+      # 2️nDebug: show root folder and files
+      - name: Debug: show repo root
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files in repo root:"
+          ls -la
+          echo "Contents of src/:"
+          ls -la src
+          echo "Contents of tests/:"
+          ls -la tests
 
-    # 3. Install dependencies
-    - name: Install dependencies
-      run: npm install
+      # 3️ Setup Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-    # 4. Run unit tests
-    - name: Run unit tests
-      run: npm test
-      working-directory: ./devops-service
+      # 4️ Install dependencies
+      - name: Install dependencies
+        run: npm install
 
-    # 5. Build Docker image
-    - name: Build Docker image
-      run: docker build -t devops-status-api .
+      # 5️ Run Jest tests
+      - name: Run tests
+        run: npm test
 
-    # 6. Run container for verification (no host port)
-    - name: Verify Docker container
-      run: |
-        docker run -d --name devops-status-api devops-status-api
-        # Wait for container to start
-        sleep 5
-        docker logs devops-status-api
-        # Stop and remove container
-        docker stop devops-status-api
-        docker rm devops-status-api
+      # 6️ Build Docker image
+      - name: Build Docker image
+        run: docker build -t devops-status-api .
+
+      # 7️ Run container for verification
+      - name: Verify Docker container
+        run: |
+          docker run -d --name devops-status-api -p 3000:3000 devops-status-api
+          echo "Waiting 5 seconds for container to start..."
+          sleep 5
+          docker logs devops-status-api
+          docker stop devops-status-api
+          docker rm devops-status-api
