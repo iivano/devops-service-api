@@ -30,6 +30,7 @@ jobs:
     # 4. Run unit tests
     - name: Run unit tests
       run: npm test
+      working-directory: ./devops-service
 
     # 5. Build Docker image
     - name: Build Docker image
