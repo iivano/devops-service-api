@@ -8,12 +8,22 @@ on:
     branches:
       - main
 
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  build-test-deploy:
+  build-test-docker:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Check out the repository
+    # 1. Checkout the repository
     - name: Checkout code
       uses: actions/checkout@v3
 
@@ -27,17 +37,21 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    # 4. Run tests
-    - name: Run tests
+    # 4. Run unit tests
+    - name: Run unit tests
       run: npm test
 
     # 5. Build Docker image
     - name: Build Docker image
       run: docker build -t devops-status-api .
 
-    # 6. Run container (optional for CI, useful for integration testing)
-    - name: Run container
+    # 6. Run container for verification (no host port)
+    - name: Verify Docker container
       run: |
-        docker stop devops-status-api || true
-        docker rm devops-status-api || true
-        docker run -d -p 3000:3000 --name devops-status-api devops-status-api
+        docker run -d --name devops-status-api devops-status-api
+        # Wait for container to start
+        sleep 5
+        docker logs devops-status-api
+        # Stop and remove container
+        docker stop devops-status-api
+        docker rm devops-status-api
