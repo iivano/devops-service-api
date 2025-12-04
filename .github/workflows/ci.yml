@@ -12,34 +12,42 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: devops-service
-
     steps:
       # 1. Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js
+      # 2. Debug: show repo root and structure
+      - name: Debug: show paths
+        run: |
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          pwd
+          ls -la
+          echo "Contents of devops-service:"
+          ls -la devops-service
+
+      # 3. Setup Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3. Install deps
+      # 4. Install dependencies (inside devops-service)
       - name: Install dependencies
         run: npm install
+        working-directory: devops-service
 
-      # 4. Run tests
+      # 5. Run tests (inside devops-service)
       - name: Run tests
         run: npm test
+        working-directory: devops-service
 
-      # 5. Build Docker image
+      # 6. Build Docker image (inside devops-service)
       - name: Build Docker image
         run: docker build -t devops-status-api .
+        working-directory: devops-service
 
-      # 6. Verify Docker container
+      # 7. Verify Docker container (inside devops-service)
       - name: Verify Docker container
         run: |
           docker run -d --name devops-status-api -p 3000:3000 devops-status-api
@@ -47,3 +55,9 @@ jobs:
           docker logs devops-status-api
           docker stop devops-status-api
           docker rm devops-status-api
+        working-directory: devops-service
+
+      # 8. Optional: deploy using deploy.sh
+      - name: Deploy
+        run: ./scripts/deploy.sh
+        working-directory: devops-service
