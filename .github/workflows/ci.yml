@@ -11,7 +11,11 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
+    
+    defaults:
+      run:
+        working-directory: devops-service
+    
     steps:
       # 1️ Checkout code
       - name: Checkout repository
