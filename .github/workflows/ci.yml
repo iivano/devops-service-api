@@ -11,17 +11,13 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    
-    defaults:
-      run:
-        working-directory: devops-service
-    
+
     steps:
       # 1️ Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️nDebug: show root folder and files
+      # 2️ Debug: show root folder and files
       - name: Debug: show repo root
         run: |
           echo "Current directory:"
