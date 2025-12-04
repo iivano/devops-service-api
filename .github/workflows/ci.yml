@@ -21,37 +21,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Debug directories
-      - name: Debug: show repo structure
-        run: |
-          echo "PWD:"
-          pwd
-          echo "Root files:"
-          ls -la
-          echo "src folder:"
-          ls -la src || echo "src folder missing"
-          echo "tests folder:"
-          ls -la tests || echo "tests folder missing"
-
-      # 3. Setup Node.js
+      # 2. Setup Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 4. Install deps
+      # 3. Install deps
       - name: Install dependencies
         run: npm install
 
-      # 5. Run tests
+      # 4. Run tests
       - name: Run tests
         run: npm test
 
-      # 6. Build Docker image
+      # 5. Build Docker image
       - name: Build Docker image
         run: docker build -t devops-status-api .
 
-      # 7. Verify Docker container
+      # 6. Verify Docker container
       - name: Verify Docker container
         run: |
           docker run -d --name devops-status-api -p 3000:3000 devops-status-api
