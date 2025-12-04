@@ -12,46 +12,49 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: devops-service
+
     steps:
-      # 1️ Checkout code
+      # 1. Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️ Debug: show root folder and files
-      - name: Debug: show repo root
+      # 2. Debug directories
+      - name: Debug: show repo structure
         run: |
-          echo "Current directory:"
+          echo "PWD:"
           pwd
-          echo "Files in repo root:"
+          echo "Root files:"
           ls -la
-          echo "Contents of src/:"
-          ls -la src
-          echo "Contents of tests/:"
-          ls -la tests
+          echo "src folder:"
+          ls -la src || echo "src folder missing"
+          echo "tests folder:"
+          ls -la tests || echo "tests folder missing"
 
-      # 3️ Setup Node.js
+      # 3. Setup Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 4️ Install dependencies
+      # 4. Install deps
       - name: Install dependencies
         run: npm install
 
-      # 5️ Run Jest tests
+      # 5. Run tests
       - name: Run tests
         run: npm test
 
-      # 6️ Build Docker image
+      # 6. Build Docker image
       - name: Build Docker image
         run: docker build -t devops-status-api .
 
-      # 7️ Run container for verification
+      # 7. Verify Docker container
       - name: Verify Docker container
         run: |
           docker run -d --name devops-status-api -p 3000:3000 devops-status-api
-          echo "Waiting 5 seconds for container to start..."
           sleep 5
           docker logs devops-status-api
           docker stop devops-status-api
